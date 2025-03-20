@@ -1,7 +1,14 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  /* config options here */
+// next.config.js
+const nextConfig = {
+  images: {
+    domains: ["img.freepik.com", "veterinaire-tour-hassan.com"],
+  },
+  webpack: (config:any) => {
+    config.module.rules.push({
+      test: /\.node/,
+      use: "raw-loader",
+    });
+return config;
+  },
 };
-
-export default nextConfig;
+module.exports = nextConfig;

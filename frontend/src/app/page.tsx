@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import FileUploader from "../components/FileUploader"
-import ChatInterface from "@/components/ChatInterface";
-import ChatHistory from "@/components/ChatHistory"
-import Sidebar from "@/components/Sidebar";
+import { Sidebar } from "@/components/Sidebar";
 import Chat from "@/components/Chat";
+import Pdf from "@/components/Pdf";
+import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 export default function Home() {
   const [pdfId, setPdfId] = useState<string | null>(null);
@@ -15,11 +14,20 @@ export default function Home() {
   };
 
   return (
-    <div className="p-10">
-      <div className="flex gap-2">
-        <Sidebar/>
-        <Chat/>
-      </div>
+    <div className="w-full h-screen flex">
+      <PanelGroup direction="horizontal">
+        <Sidebar />
+
+        <Panel defaultSize={40} minSize={20} maxSize={60}>
+          <Pdf />
+        </Panel>
+
+        <PanelResizeHandle className="w-2 bg-gray-300 cursor-col-resize" />
+
+        <Panel defaultSize={40} minSize={20} maxSize={60}>
+          <Chat />
+        </Panel>
+      </PanelGroup>
     </div>
   );
 }
