@@ -7,9 +7,9 @@ import Pdf from "@/components/Pdf";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 
 export default function Home() {
-  const [pdfId, setPdfId] = useState<string | null>(null);
+  const [pdfId, setPdfId] = useState<any>(null);
 
-  const handleUploadSuccess = (newPdfId: string) => {
+  const handleUploadSuccess = (newPdfId: any) => {
     setPdfId(newPdfId);
   };
 
