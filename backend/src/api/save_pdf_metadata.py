@@ -7,7 +7,7 @@ from gridfs import GridFS
 client = MongoClient(MONGO_URI)
 db = client[MONGO_DB_NAME]
 pdfs_collection = db["pdfs"]
-fs = GridFS(db, collection="pdf_files", chunk_collection="file_chunks")
+fs = GridFS(db, collection="pdf_files")
 chat_history_collection = db["chat_history"]
 
 def save_pdf_metadata(file_path:str, filename:str) -> str:

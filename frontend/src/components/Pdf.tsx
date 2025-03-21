@@ -1,36 +1,31 @@
-"use client";
-import { useState } from "react";
-import { Viewer, Worker } from "@react-pdf-viewer/core";
-import "@react-pdf-viewer/core/lib/styles/index.css";
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
-import "@react-pdf-viewer/default-layout/lib/styles/index.css";
+import React from 'react';
+import { Page, Text, View, Document, StyleSheet } from '@react-pdf/renderer';
 
-const PdfViewer = () => {
-  const [pdfUrl, setPdfUrl] = useState("");
+// Create styles
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'row',
+    backgroundColor: '#E4E4E4'
+  },
+  section: {
+    margin: 10,
+    padding: 10,
+    flexGrow: 1
+  }
+});
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setPdfUrl(URL.createObjectURL(file));
-    }
-  };
+// Create Document Component
+const Pdf = () => (
+  <Document>
+    <Page size="A4" style={styles.page}>
+      <View style={styles.section}>
+        <Text>Section #1</Text>
+      </View>
+      <View style={styles.section}>
+        <Text>Section #2</Text>
+      </View>
+    </Page>
+  </Document>
+);
 
-  const defaultLayoutPluginInstance = defaultLayoutPlugin();
-
-  return (
-    <div className="flex flex-col items-center">
-      <input type="file" accept="application/pdf" onChange={handleFileChange} />
-      <div className="h-screen w-screen">
-        {pdfUrl || "/test.pdf" ? (
-          <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.12.0/build/pdf.worker.min.js">
-            <Viewer fileUrl={pdfUrl || "./test.pdf"} plugins={[defaultLayoutPluginInstance]} />
-          </Worker>
-        ) : (
-          <p>No PDF selected</p>
-        )}
-      </div>
-    </div>
-  );
-};
-
-export default PdfViewer;
+export default Pdf

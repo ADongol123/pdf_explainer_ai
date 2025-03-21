@@ -5,10 +5,12 @@ import { Sidebar } from "@/components/Sidebar";
 import Chat from "@/components/Chat";
 import Pdf from "@/components/Pdf";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
-
+// import test_pdf from "../../public/test.pdf"
+import { PDFViewer } from "@react-pdf/renderer";
+import Upload from "@/components/UploadButton";
 export default function Home() {
-  const [pdfId, setPdfId] = useState<any>(null);
-
+  const [pdfId, setPdfId] = useState<any>(true);
+  const [file, setFile] = useState<any>(null);
   const handleUploadSuccess = (newPdfId: any) => {
     setPdfId(newPdfId);
   };
@@ -19,12 +21,19 @@ export default function Home() {
         <Sidebar />
 
         <Panel defaultSize={40} minSize={20} maxSize={60}>
-          <Pdf />
+          <Upload file={file} setFile={setFile} />
         </Panel>
 
         <PanelResizeHandle className="w-2 bg-gray-300 cursor-col-resize" />
 
         <Panel defaultSize={40} minSize={20} maxSize={60}>
+          {file ? (
+            <Chat />
+          ) : (
+            <div className="flex justify-center items-center h-full text-gray-500">
+              Please upload a file to enable chat
+            </div>
+          )}
           <Chat />
         </Panel>
       </PanelGroup>

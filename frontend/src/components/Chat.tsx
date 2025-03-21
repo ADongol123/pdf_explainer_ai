@@ -19,7 +19,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col w-full h-full bg-[#292a2e] p-4 rounded-lg shadow-md text-white">
+    <div className="flex flex-col w-full h-full bg-[#292a2e] p-4 shadow-md text-white">
       {/* Chat History */}
       <div className="flex-grow overflow-y-auto mb-4">
         <div className="space-y-4">
