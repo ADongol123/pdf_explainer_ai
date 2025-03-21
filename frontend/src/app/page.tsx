@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import Chat from "@/components/Chat";
 import Pdf from "@/components/Pdf";
@@ -11,17 +11,24 @@ import Upload from "@/components/UploadButton";
 export default function Home() {
   const [pdfId, setPdfId] = useState<any>(true);
   const [file, setFile] = useState<any>(null);
+  const [value,setValue] = useState(false)
+  const [localid,setLocalId] = useState<any>(null)
   const handleUploadSuccess = (newPdfId: any) => {
     setPdfId(newPdfId);
   };
-
+  useEffect(() =>{
+    const storedPdfId = localStorage.getItem("pdfId");
+    if(storedPdfId){
+      setLocalId(storedPdfId)
+    } 
+  },[])
   return (
     <div className="w-full h-screen flex">
       <PanelGroup direction="horizontal">
         <Sidebar />
 
         <Panel defaultSize={40} minSize={20} maxSize={60}>
-          <Upload file={file} setFile={setFile} />
+          <Upload file={file} setFile={setFile} value={value} setValue={setValue}/>
         </Panel>
 
         <PanelResizeHandle className="w-2 bg-gray-300 cursor-col-resize" />
@@ -34,7 +41,7 @@ export default function Home() {
               Please upload a file to enable chat
             </div>
           )}
-          <Chat />
+          <Chat pdfId={localid}/>
         </Panel>
       </PanelGroup>
     </div>

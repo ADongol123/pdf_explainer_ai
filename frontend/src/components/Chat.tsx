@@ -1,29 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const Chat = () => {
-  const [messages, setMessages] = useState([
-    { id: 1, text: 'Hello, how can I assist you today?', sender: 'bot' },
-    { id: 2, text: 'I need help with my PDF file.', sender: 'user' },
-  ]);
-
+const Chat = ({ pdfId }: { pdfId: string | null }) => {
+  const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [localPdfId, setLocalPdfId] = useState<string | null>(pdfId);
+  const API_BASE_URL = 'http://localhost:8000'; // Update with your actual API URL
+  console.log(localPdfId,"localPdfId")
+  useEffect(() => {
+    const storedPdfId = localStorage.getItem('pdfId');
+    if (!pdfId && storedPdfId) {
+      setLocalPdfId(storedPdfId);
+    } else {
+      setLocalPdfId(pdfId);
+    }
+    fetchChatHistory();
+  }, [pdfId]);
 
-  const handleSendMessage = () => {
-    if (newMessage.trim() !== '') {
-      setMessages([
-        ...messages,
-        { id: messages.length + 1, text: newMessage, sender: 'user' },
-      ]);
-      setNewMessage('');
+  const fetchChatHistory = async () => {
+    if (!localPdfId) return;
+    try {
+      const response = await axios.get(`${API_BASE_URL}/get-chat-history/${localPdfId}`);
+      setMessages(response.data.chat_history || []);
+    } catch (error) {
+      console.error('Error fetching chat history:', error);
     }
   };
+
+  const handleSendMessage = async () => {
+    if (!localPdfId || newMessage.trim() === '') {
+      console.error('Error: pdf_id or query is missing');
+      return;
+    }
+  
+    const userMessage = { id: messages.length + 1, text: newMessage, sender: 'user' };
+    setMessages([...messages, userMessage]);
+    setNewMessage('');
+  
+    try {
+      const response = await axios.post(`${API_BASE_URL}/chat/`, {
+        pdf_id: localPdfId,
+        query: newMessage,   
+      });
+  
+      const botMessage = { id: messages.length + 2, text: response.data.answer, sender: 'bot' };
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+  
 
   return (
     <div className="flex flex-col w-full h-full bg-[#292a2e] p-4 shadow-md text-white">
       {/* Chat History */}
       <div className="flex-grow overflow-y-auto mb-4">
         <div className="space-y-4">
-          {messages.map((message) => (
+          {messages.map((message: any) => (
             <div
               key={message.id}
               className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}

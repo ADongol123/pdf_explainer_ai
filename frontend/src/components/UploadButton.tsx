@@ -4,12 +4,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 interface UploadProps {
   file: File | any | null;
   setFile: React.Dispatch<React.SetStateAction<File | null>>;
-  onUploadSuccess: (pdfId: string) => void;
+  value: boolean;
+  setValue: any;
+  onUploadSuccess: any;
 }
 
-const Upload = ({ file, setFile }: UploadProps) => {
+const Upload = ({ file, setFile, value, setValue }: UploadProps) => {
   const queryClient = useQueryClient();
-  const [value, setValue] = useState(false);
   const [message, setMessage] = useState<string>("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,6 +37,8 @@ const Upload = ({ file, setFile }: UploadProps) => {
     },
     onSuccess: (data: any) => {
       setMessage("File uploaded successfully!");
+      localStorage.setItem("pdfId", data?.pdf_id);
+      setValue(true);
       onUploadSuccess(data.pdf_id);
       queryClient.invalidateQueries(["files"]);
     },
@@ -50,7 +53,6 @@ const Upload = ({ file, setFile }: UploadProps) => {
       return;
     }
     uploadMutation.mutate(file);
-    setValue(true);
   };
 
   // Generate the file URL
@@ -63,7 +65,11 @@ const Upload = ({ file, setFile }: UploadProps) => {
           {file.type === "application/pdf" ? (
             <iframe
               src={fileUrl}
-              style={{ width: "100%", height: "100%", border: "1px solid #ccc" }}
+              style={{
+                width: "100%",
+                height: "100%",
+                border: "1px solid #ccc",
+              }}
               title="PDF Viewer"
             />
           ) : (
@@ -72,7 +78,9 @@ const Upload = ({ file, setFile }: UploadProps) => {
         </div>
       ) : (
         <div className="bg-white shadow-lg rounded-2xl p-6 w-96">
-          <h2 className="text-xl font-bold text-center text-gray-800">Upload your files</h2>
+          <h2 className="text-xl font-bold text-center text-gray-800">
+            Upload your files
+          </h2>
           <p className="text-gray-500 text-sm text-center">Fast and easy way</p>
 
           <label
@@ -93,7 +101,9 @@ const Upload = ({ file, setFile }: UploadProps) => {
                 d="M7 16a4 4 0 008 0m-3 4v-4m-5-3a4 4 0 018 0m-7 5v-6a4 4 0 018 0v6m-4 4h.01"
               ></path>
             </svg>
-            <span className="text-gray-600 text-sm">Drag and drop files here</span>
+            <span className="text-gray-600 text-sm">
+              Drag and drop files here
+            </span>
           </label>
 
           <input

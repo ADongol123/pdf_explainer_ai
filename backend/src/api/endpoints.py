@@ -5,12 +5,10 @@ from src.core.rag_generator import generate_response
 from src.config import UPLOAD_DIR
 from src.utils import save_uploaded_file
 from src.db.mongo import save_chat_history, get_pdf_metadata
-from src.api.save_pdf_metadata import save_pdf_metadata,save_pdf_content,get_chat_history,fs
+from src.api.save_pdf_metadata import save_pdf_metadata, save_pdf_content, get_chat_history, fs
 import os 
 from fastapi.responses import FileResponse
 import tempfile
-
-
 
 router = APIRouter()
 
@@ -22,7 +20,7 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB in bytes
 
 @router.post("/upload-pdf/")
 async def upload_pdf(file: UploadFile = File(...)):
-    """Upload a PDF file, save metadata and content to MongoDB, and process for chat."""
+    """Upload a PDF file, save metadata and content to MongoDB, and pre-process for chat."""
     # Check file extension
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
@@ -60,10 +58,11 @@ async def upload_pdf(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save PDF content: {str(e)}")
 
-    # Process text into chunks and create a vector store
+    # Process text into chunks and create a vector store **IMMEDIATELY**
     try:
         token_split_texts = split_text(pdf_texts)
-        collections[pdf_id] = create_vector_store(token_split_texts, collection_name=pdf_id)
+        vector_store = create_vector_store(token_split_texts, collection_name=pdf_id)
+        collections[pdf_id] = vector_store  # Store in memory for faster access
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to process PDF for chat: {str(e)}")
 
@@ -94,8 +93,6 @@ async def chat_with_pdf(pdf_id: str, query: str):
         "answer": answer,
         "pdf_id": pdf_id
     }
-    
-    
 
 @router.get("/get-pdf/{pdf_id}")
 async def get_pdf(pdf_id: str, metadata_only: bool = False):
