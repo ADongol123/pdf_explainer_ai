@@ -13,15 +13,12 @@ import Chat from "../components/Chat";
 export default function PDFChat() {
   const [message, setMessage] = useState("");
   const [pdfFile, setPdfFile] = useState<File | null>(null);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<any>(null);
   const [isUploaded, setIsUploaded] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [suggestedTopics, setSuggestedTopics] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient(); // No need for :any, type is inferred
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
-    api: "/api/chat",
-  });
 
   const pdfId = localStorage.getItem("pdfId")
   console.log(pdfUrl,"pdfUrl")
@@ -76,60 +73,60 @@ export default function PDFChat() {
     }
   };
 
-  const handleChatSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pdfFile) {
-      handleSubmit(e, {
-        experimental_attachments: [pdfFile],
-      });
-    } else {
-      handleSubmit(e);
-    }
-  };
+  // const handleChatSubmit = (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   if (pdfFile) {
+  //     handleSubmit(e, {
+  //       experimental_attachments: [pdfFile],
+  //     });
+  //   } else {
+  //     handleSubmit(e);
+  //   }
+  // };
 
   const triggerFileInput = () => {
     fileInputRef.current?.click();
   };
 
-  const handleTopicClick = (topic: string) => {
-    handleInputChange({ target: { value: topic } } as React.ChangeEvent<HTMLInputElement>);
-    setTimeout(() => {
-      const formEvent = new Event("submit") as unknown as React.FormEvent;
-      handleChatSubmit(formEvent);
-    }, 100);
-  };
+  // const handleTopicClick = (topic: string) => {
+  //   handleInputChange({ target: { value: topic } } as React.ChangeEvent<HTMLInputElement>);
+  //   setTimeout(() => {
+  //     const formEvent = new Event("submit") as unknown as React.FormEvent;
+  //     handleChatSubmit(formEvent);
+  //   }, 100);
+  // };
 
-  useEffect(() => {
-    if (isUploaded && pdfFile && messages.length === 0) {
-      setMessages([
-        {
-          id: "welcome-message",
-          role: "assistant",
-          content:
-            "👋 Welcome! I've received your PDF. What would you like to know about it? You can ask me any questions about the content.",
-        },
-      ]);
+  // useEffect(() => {
+  //   if (isUploaded && pdfFile && messages.length === 0) {
+  //     setMessages([
+  //       {
+  //         id: "welcome-message",
+  //         role: "assistant",
+  //         content:
+  //           "👋 Welcome! I've received your PDF. What would you like to know about it? You can ask me any questions about the content.",
+  //       },
+  //     ]);
 
-      setIsAnalyzing(true);
-      const formData = new FormData();
-      formData.append("pdf", pdfFile);
+  //     setIsAnalyzing(true);
+  //     const formData = new FormData();
+  //     formData.append("pdf", pdfFile);
 
-      fetch("/api/analyze-pdf", {
-        method: "POST",
-        body: formData,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setSuggestedTopics(data.topics || ["Summarize this document", "Key points"]);
-          setIsAnalyzing(false);
-        })
-        .catch((err) => {
-          console.error("Error analyzing PDF:", err);
-          setIsAnalyzing(false);
-          setSuggestedTopics(["Summarize this document", "Key points", "Main arguments"]);
-        });
-    }
-  }, [isUploaded, pdfFile, messages.length, setMessages]);
+  //     fetch("/api/analyze-pdf", {
+  //       method: "POST",
+  //       body: formData,
+  //     })
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         setSuggestedTopics(data.topics || ["Summarize this document", "Key points"]);
+  //         setIsAnalyzing(false);
+  //       })
+  //       .catch((err) => {
+  //         console.error("Error analyzing PDF:", err);
+  //         setIsAnalyzing(false);
+  //         setSuggestedTopics(["Summarize this document", "Key points", "Main arguments"]);
+  //       });
+  //   }
+  // }, [isUploaded, pdfFile, messages.length, setMessages]);
 
   const { data: pdfBlob, error: pdfError, isLoading: pdfLoading } = useQuery<Blob, Error>({
     queryKey: ["pdf", localStorage.getItem("pdfId")],
@@ -137,7 +134,7 @@ export default function PDFChat() {
       const pdfId = localStorage.getItem("pdfId");
       if (!pdfId) throw new Error("No PDF ID found in localStorage");
 
-      const response = await fetch(`http://127.0.0.1:8000/get-pdf/${pdfId}`);
+      const response = await fetch(`http://127.0.0.1:8000/get-pdf/${pdfId}?metadata_only=false`);
       if (!response.ok) {
         throw new Error(`Failed to fetch PDF: ${response.status}`);
       }
@@ -235,6 +232,6 @@ export default function PDFChat() {
   }
 
   return (
-    <Chat/>
+    <Chat pdfUrl={pdfUrl} pdfId={pdfId}/>
   );
 }
