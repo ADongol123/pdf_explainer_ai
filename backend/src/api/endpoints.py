@@ -96,22 +96,27 @@ async def chat_with_pdf(pdf_id: str, query: str):
 
 @router.get("/get-pdf/{pdf_id}")
 async def get_pdf(pdf_id: str, metadata_only: bool = False):
-    """Fetch the uploaded PDF file or its metadata by pdf_id from GridFS."""
+    print(f"Request for pdf_id: {pdf_id}, metadata_only: {metadata_only}")
     pdf_metadata = get_pdf_metadata(pdf_id)
+    print(f"pdf_metadata: {pdf_metadata}")
     if not pdf_metadata:
         raise HTTPException(status_code=404, detail="PDF not found")
 
     if metadata_only:
+        print("Returning metadata")
         return pdf_metadata
     
     pdf_file = fs.get_last_version(filename=pdf_id)
+    print(f"pdf_file: {pdf_file}")
     if not pdf_file:
         raise HTTPException(status_code=404, detail="PDF file not found in GridFS")
     
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(pdf_file.read())
         tmp_path = tmp.name
+        print(f"Temporary file created: {tmp_path}")
     
+    print("Returning FileResponse")
     return FileResponse(
         path=tmp_path,
         media_type="application/pdf",
