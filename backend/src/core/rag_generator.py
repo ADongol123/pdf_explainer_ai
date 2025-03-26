@@ -17,11 +17,11 @@ def generate_response(query, retrieved_documents):
     Answer:
     """
     
-    max_input_length = 1000
+    max_input_length = 5000
     truncated_prompt = prompt[:max_input_length]
     response = generator(
         truncated_prompt,
-        max_length=500,  # Allows for longer responses
+        max_length=1500,  # Allows for longer responses
         num_return_sequences=1,
         do_sample=False  # Deterministic output for consistency
     )
